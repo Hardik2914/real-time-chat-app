@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WS Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+</head>
+<body>
+
+<button onclick="connect()">Connect</button>
+<button onclick="send()">Send</button>
+
+<script>
+  let client;
+
+  function connect() {
+    client = new StompJs.Client({
+      brokerURL: "ws://localhost:8080/ws",
+      onConnect: () => {
+        console.log("CONNECTED");
+        client.subscribe("/topic/messages", msg => {
+          console.log("RECEIVED:", msg.body);
+        });
+      }
+    });
+    client.activate();
+  }
+
+  function send() {
+    client.publish({
+      destination: "/app/chat",
+      body: JSON.stringify({ text: "Hello Bhai 🔥" })
+    });
+  }
+</script>
+
+</body>
+</html>
