@@ -1,18 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 import "./App.css";
 
+import JoinChat from "./components/JoinChat";
+import ChatHeader from "./components/ChatHeader";
+import MessageList from "./components/MessageList";
+import ChatInput from "./components/ChatInput";
 
 function App() {
   const [username, setUsername] = useState("");
-const [joined, setJoined] = useState(false);
+  const [joined, setJoined] = useState(false);
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [connected, setConnected] = useState(false);
   const [client, setClient] = useState(null);
 
-  // runs ONCE when component loads
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(scrollToBottom, [messages]);
+
   useEffect(() => {
     const stompClient = new Client({
       brokerURL: "ws://localhost:8080/ws",
@@ -20,7 +31,6 @@ const [joined, setJoined] = useState(false);
 
       onConnect: () => {
         setConnected(true);
-
         stompClient.subscribe("/topic/messages", (msg) => {
           setMessages((prev) => [...prev, JSON.parse(msg.body)]);
         });
@@ -33,84 +43,86 @@ const [joined, setJoined] = useState(false);
     return () => stompClient.deactivate();
   }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (client && username) {
+        client.publish({
+          destination: "/app/chat",
+          body: JSON.stringify({
+            type: "LEAVE",
+            sender: username,
+            text: `${username} left the chat`,
+          }),
+        });
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () =>
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [client, username]);
+
   const sendMessage = () => {
-  if (!connected || !text.trim()) return;
+    if (!connected || !text.trim()) return;
 
-  client.publish({
-    destination: "/app/chat",
-    body: JSON.stringify({
-      sender: username,
-      text: text,
-    }),
-  });
+    client.publish({
+      destination: "/app/chat",
+      body: JSON.stringify({
+        type: "CHAT",
+        sender: username,
+        text: text,
+      }),
+    });
 
-  setText("");
-};
+    setText("");
+  };
 
-const handleKeyDown = (e) => {
-  if (e.key === "Enter") {
-    sendMessage();
-  }
-};
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") sendMessage();
+  };
 
+  const handleJoin = () => {
+    if (!username.trim()) return;
+
+    setJoined(true);
+
+    client.publish({
+      destination: "/app/chat",
+      body: JSON.stringify({
+        type: "JOIN",
+        sender: username,
+        text: `${username} joined the chat`,
+      }),
+    });
+  };
 
   return (
-  <div className="chat-container">
-    {!joined ? (
-      <div className="join-chat">
-        <h2>Enter Username</h2>
-        <input
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Your name"
+    <div className="chat-container">
+      {!joined ? (
+        <JoinChat
+          username={username}
+          setUsername={setUsername}
+          onJoin={handleJoin}
         />
-        <button
-          onClick={() => {
-            if (username.trim()) setJoined(true);
-          }}
-        >
-          Join Chat
-        </button>
-      </div>
-    ) : (
-      <>
-        <div className="chat-header">Real-Time Chat</div>
-
-        <div className="chat-messages">
-          {messages.map((m, i) => {
-  const isMine = m.sender === username;
-
-  return (
-    <div
-      key={i}
-      className={`chat-message ${isMine ? "my-message" : "other-message"}`}
-    >
-      {!isMine && <div className="sender-name">{m.sender}</div>}
-      <div className="message-text">{m.text}</div>
+      ) : (
+        <>
+          <ChatHeader />
+          <MessageList
+            messages={messages}
+            username={username}
+            messagesEndRef={messagesEndRef}
+          />
+          <ChatInput
+            text={text}
+            setText={setText}
+            sendMessage={sendMessage}
+            handleKeyDown={handleKeyDown}
+            connected={connected}
+          />
+        </>
+      )}
     </div>
   );
-})}
-
-
-        </div>
-
-        <div className="chat-input">
-          <input
-             value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-          />
-
-          <button onClick={sendMessage} disabled={!connected}>
-            Send
-          </button>
-        </div>
-      </>
-    )}
-  </div>
-);
-
 }
 
 export default App;
