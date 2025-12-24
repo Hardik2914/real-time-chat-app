@@ -7,7 +7,10 @@ import ChatHeader from "./components/ChatHeader";
 import MessageList from "./components/MessageList";
 import ChatInput from "./components/ChatInput";
 
+
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
   const [username, setUsername] = useState("");
   const [joined, setJoined] = useState(false);
 
@@ -42,6 +45,11 @@ function App() {
 
     return () => stompClient.deactivate();
   }, []);
+
+  useEffect(() => {
+  document.body.className = darkMode ? "dark" : "";
+}, [darkMode]);
+
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -106,7 +114,7 @@ function App() {
         />
       ) : (
         <>
-          <ChatHeader />
+          <ChatHeader darkMode={darkMode} setDarkMode={setDarkMode} />
           <MessageList
             messages={messages}
             username={username}
