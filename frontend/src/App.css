@@ -187,3 +187,32 @@ body {
   color: white;
 }
 
+
+
+/* ===== Timestamp styling ===== */
+
+.message-time {
+  font-size: 10px;
+  margin-top: 6px;
+  opacity: 0.6;
+  user-select: none;
+}
+
+/* My message timestamp */
+.time-mine {
+  text-align: right;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Other user's timestamp */
+.time-other {
+  text-align: left;
+  color: #6b7280;
+}
+
+/* System message time */
+.system-time {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-top: 4px;
+}

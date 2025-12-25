@@ -10,7 +10,6 @@ import ChatInput from "./components/ChatInput";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
-
   const [username, setUsername] = useState("");
   const [joined, setJoined] = useState(false);
 
@@ -60,6 +59,7 @@ function App() {
             type: "LEAVE",
             sender: username,
             text: `${username} left the chat`,
+            time: new Date().toISOString(),
           }),
         });
       }
@@ -79,6 +79,7 @@ function App() {
         type: "CHAT",
         sender: username,
         text: text,
+        time: new Date().toISOString(),
       }),
     });
 
@@ -100,6 +101,7 @@ function App() {
         type: "JOIN",
         sender: username,
         text: `${username} joined the chat`,
+        time: new Date().toISOString(),
       }),
     });
   };
