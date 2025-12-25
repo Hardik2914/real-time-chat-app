@@ -7,7 +7,6 @@ import ChatHeader from "./components/ChatHeader";
 import MessageList from "./components/MessageList";
 import ChatInput from "./components/ChatInput";
 
-
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [username, setUsername] = useState("");
@@ -20,22 +19,37 @@ function App() {
 
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(scrollToBottom, [messages]);
-
+  /* -------------------- AUTO SCROLL -------------------- */
   useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  /* -------------------- WEBSOCKET SETUP -------------------- */
+  useEffect(() => {
+    const socketUrl =
+      process.env.REACT_APP_WS_URL || "ws://localhost:8080/ws";
+
     const stompClient = new Client({
-      brokerURL: "ws://localhost:8080/ws",
+      brokerURL: socketUrl,
       reconnectDelay: 5000,
 
       onConnect: () => {
+        console.log("✅ Connected to WebSocket");
         setConnected(true);
+
         stompClient.subscribe("/topic/messages", (msg) => {
-          setMessages((prev) => [...prev, JSON.parse(msg.body)]);
+          const message = JSON.parse(msg.body);
+          setMessages((prev) => [...prev, message]);
         });
+      },
+
+      onDisconnect: () => {
+        console.log("❌ Disconnected from WebSocket");
+        setConnected(false);
+      },
+
+      onStompError: (frame) => {
+        console.error("STOMP error:", frame);
       },
     });
 
@@ -45,11 +59,12 @@ function App() {
     return () => stompClient.deactivate();
   }, []);
 
+  /* -------------------- DARK MODE -------------------- */
   useEffect(() => {
-  document.body.className = darkMode ? "dark" : "";
-}, [darkMode]);
+    document.body.className = darkMode ? "dark" : "";
+  }, [darkMode]);
 
-
+  /* -------------------- LEAVE MESSAGE ON CLOSE -------------------- */
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (client && username) {
@@ -70,6 +85,7 @@ function App() {
       window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [client, username]);
 
+  /* -------------------- SEND MESSAGE -------------------- */
   const sendMessage = () => {
     if (!connected || !text.trim()) return;
 
@@ -78,7 +94,7 @@ function App() {
       body: JSON.stringify({
         type: "CHAT",
         sender: username,
-        text: text,
+        text,
         time: new Date().toISOString(),
       }),
     });
@@ -90,6 +106,7 @@ function App() {
     if (e.key === "Enter") sendMessage();
   };
 
+  /* -------------------- JOIN CHAT -------------------- */
   const handleJoin = () => {
     if (!username.trim()) return;
 
@@ -106,6 +123,7 @@ function App() {
     });
   };
 
+  /* -------------------- UI -------------------- */
   return (
     <div className="chat-container">
       {!joined ? (
@@ -117,11 +135,13 @@ function App() {
       ) : (
         <>
           <ChatHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+
           <MessageList
             messages={messages}
             username={username}
             messagesEndRef={messagesEndRef}
           />
+
           <ChatInput
             text={text}
             setText={setText}
