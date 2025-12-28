@@ -1,6 +1,8 @@
 package com.chatapp.controller;
 
+import com.chatapp.chat.repository.UserRepository;
 import com.chatapp.model.ChatMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.*;
 import org.springframework.stereotype.Controller;
 
@@ -12,4 +14,7 @@ public class ChatController {
     public ChatMessage send(ChatMessage msg) {
         return msg;
     }
+
+   
+
 }
