@@ -15,11 +15,28 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest request) {
-        return userService.registerUser(
+    public UserResponse register(@RequestBody RegisterRequest request) {
+         User user=userService.registerUser(
                 request.getUsername(),
                 request.getPassword(),
                 request.getDisplayName()
+        );
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getDisplayName()
+        );
+    }
+    @PostMapping("/login")
+    public UserResponse login(@RequestBody LoginRequest request){
+        User user=userService.loginUser(
+                request.getUsername(),
+                request.getPassword()
+        );
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getDisplayName()
         );
     }
 }
