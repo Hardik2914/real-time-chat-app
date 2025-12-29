@@ -1,21 +1,22 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 import "./App.css";
+import AuthForm from "./components/auth/AuthForm";
 
-import JoinChat from "./components/JoinChat";
 import ChatHeader from "./components/ChatHeader";
 import MessageList from "./components/MessageList";
 import ChatInput from "./components/ChatInput";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const [username, setUsername] = useState("");
-  const [joined, setJoined] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isLogin, setIsLogin] = useState(true);
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [connected, setConnected] = useState(false);
   const [client, setClient] = useState(null);
+  const username = user?.username;
 
   const messagesEndRef = useRef(null);
 
@@ -40,11 +41,12 @@ function App() {
         stompClient.subscribe("/topic/messages", (msg) => {
           const message = JSON.parse(msg.body);
           setMessages((prev) => [...prev, message]);
+          
         });
       },
 
       onDisconnect: () => {
-        console.log("❌ Disconnected from WebSocket");
+        console.log(" Disconnected from WebSocket");
         setConnected(false);
       },
 
@@ -63,6 +65,21 @@ function App() {
   useEffect(() => {
     document.body.className = darkMode ? "dark" : "";
   }, [darkMode]);
+
+  useEffect(() => {
+  if (user && client && connected) {
+    client.publish({
+      destination: "/app/chat",
+      body: JSON.stringify({
+        type: "JOIN",
+        sender: username,
+        text: `${username} joined the chat`,
+        time: new Date().toISOString(),
+      }),
+    });
+  }
+}, [user, client, connected, username]);
+
 
   /* -------------------- LEAVE MESSAGE ON CLOSE -------------------- */
   useEffect(() => {
@@ -87,72 +104,59 @@ function App() {
 
   /* -------------------- SEND MESSAGE -------------------- */
   const sendMessage = () => {
-    if (!connected || !text.trim()) return;
+  if (!text.trim() || !client || !connected) return;
 
-    client.publish({
-      destination: "/app/chat",
-      body: JSON.stringify({
-        type: "CHAT",
-        sender: username,
-        text,
-        time: new Date().toISOString(),
-      }),
-    });
+  client.publish({
+    destination: "/app/chat",
+    body: JSON.stringify({
+      type: "CHAT",
+      sender: username,
+      text: text,
+      time: new Date().toISOString(),
+    }),
+  });
 
-    setText("");
-  };
+  setText("");
+};
+
+
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") sendMessage();
   };
 
-  /* -------------------- JOIN CHAT -------------------- */
-  const handleJoin = () => {
-    if (!username.trim()) return;
-
-    setJoined(true);
-
-    client.publish({
-      destination: "/app/chat",
-      body: JSON.stringify({
-        type: "JOIN",
-        sender: username,
-        text: `${username} joined the chat`,
-        time: new Date().toISOString(),
-      }),
-    });
-  };
+// 🔐 AUTH GATE (ADD THIS JUST BEFORE return)
+if (!user) {
+  return (
+    <AuthForm
+      onAuthSuccess={(data) => setUser(data)}
+      isLogin={isLogin}
+      setIsLogin={setIsLogin}
+    />
+  );
+}
 
   /* -------------------- UI -------------------- */
   return (
-    <div className="chat-container">
-      {!joined ? (
-        <JoinChat
-          username={username}
-          setUsername={setUsername}
-          onJoin={handleJoin}
-        />
-      ) : (
-        <>
-          <ChatHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+  <div className="chat-container">
+    <ChatHeader darkMode={darkMode} setDarkMode={setDarkMode} />
 
-          <MessageList
-            messages={messages}
-            username={username}
-            messagesEndRef={messagesEndRef}
-          />
+    <MessageList
+      messages={messages}
+      username={username}
+      messagesEndRef={messagesEndRef}
+    />
 
-          <ChatInput
-            text={text}
-            setText={setText}
-            sendMessage={sendMessage}
-            handleKeyDown={handleKeyDown}
-            connected={connected}
-          />
-        </>
-      )}
-    </div>
-  );
+    <ChatInput
+      text={text}
+      setText={setText}
+      sendMessage={sendMessage}
+      handleKeyDown={handleKeyDown}
+      connected={connected}
+    />
+  </div>
+);
+
 }
 
 export default App;

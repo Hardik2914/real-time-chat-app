@@ -7,11 +7,12 @@ function ChatInput({ text, setText, sendMessage, handleKeyDown, connected }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type a message..."
+        placeholder="Type your message..."
       />
 
       <button onClick={sendMessage} disabled={!connected}>
-        Send
+        {/* Simple Send Icon */}
+        ➤
       </button>
     </div>
   );
