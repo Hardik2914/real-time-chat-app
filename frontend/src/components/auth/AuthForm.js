@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 
+const API_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:8080";
+
 function AuthForm({ onAuthSuccess, isLogin, setIsLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -11,8 +14,8 @@ function AuthForm({ onAuthSuccess, isLogin, setIsLogin }) {
     setError("");
 
     const url = isLogin
-      ? "http://localhost:8080/api/auth/login"
-      : "http://localhost:8080/api/auth/register";
+      ? `${API_URL}/api/auth/login`
+      : `${API_URL}/api/auth/register`;
 
     const body = isLogin
       ? { username, password }
@@ -26,7 +29,7 @@ function AuthForm({ onAuthSuccess, isLogin, setIsLogin }) {
       });
 
       if (!res.ok) throw new Error("Authentication failed");
-      
+
       const data = await res.json();
       onAuthSuccess(data);
     } catch (err) {
@@ -35,7 +38,6 @@ function AuthForm({ onAuthSuccess, isLogin, setIsLogin }) {
   };
 
   return (
-    // Added 'auth-wrapper' for full-screen centering
     <div className="auth-wrapper">
       <div className="auth-container">
         <h2>{isLogin ? "Welcome Back" : "Join the Chat"}</h2>

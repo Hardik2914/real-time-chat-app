@@ -1,11 +1,13 @@
 :root {
   /* --- Colors & Variables --- */
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --body-bg-gradient: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
   
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.3);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  /* Light Mode Background */
+  --bg-gradient-light: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  
+  --glass-bg: rgba(255, 255, 255, 0.85); /* Slightly less transparent for performance */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
   
   --text-main: #2d3748;
   --text-muted: #718096;
@@ -17,11 +19,12 @@
 }
 
 body.dark {
-  /* Dark Mode Colors */
-  --body-bg-gradient: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #243b55);
-  --glass-bg: rgba(15, 23, 42, 0.85);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  /* Dark Mode Background */
+  --bg-gradient-dark: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #243b55);
+  
+  --glass-bg: rgba(15, 23, 42, 0.9); /* Higher opacity = less blur calculation needed */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
   --text-main: #e2e8f0;
   --text-muted: #94a3b8;
   --msg-my-bg: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
@@ -29,22 +32,39 @@ body.dark {
   --msg-other-text: #f1f5f9;
 }
 
-/* --- Global Setup --- */
+/* --- Global Setup & Performance Optimized Background --- */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Poppins', 'Segoe UI', sans-serif;
   color: var(--text-main);
-  background: var(--body-bg-gradient);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
   height: 100vh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden; 
-  transition: background 0.5s ease;
+}
+
+/* 🚀 PERFORMANCE FIX: Use a pseudo-element for the animated background.
+   This creates a separate composite layer, reducing lag significantly. */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: var(--bg-gradient-light);
+  background-size: 400% 400%;
+  animation: gradientBG 20s ease infinite; /* Slower animation is smoother */
+  transition: background 0.5s ease; /* Smooth dark mode switch */
+}
+
+body.dark::before {
+  background: var(--bg-gradient-dark);
+  background-size: 400% 400%;
 }
 
 @keyframes gradientBG {
@@ -57,14 +77,14 @@ body {
    1. CHAT CONTAINER (Main App Window)
    ========================================= */
 .chat-container {
-  /* Mobile Default */
   width: 95%;
   height: 90vh;
   
-  /* Glassmorphism */
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* 🚀 OPTIMIZATION: Reduced blur radius */
+  backdrop-filter: blur(10px); 
+  -webkit-backdrop-filter: blur(10px);
+  
   border: var(--glass-border);
   border-radius: 20px;
   box-shadow: var(--glass-shadow);
@@ -72,19 +92,21 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: all 0.3s ease;
+  
+  /* 🚀 OPTIMIZATION: Force GPU Layer */
+  transform: translateZ(0); 
+  will-change: width, height;
+  transition: width 0.3s ease, height 0.3s ease;
 }
 
 /* 💻 LAPTOP/DESKTOP OVERRIDE 💻 */
-/* When screen is larger than 768px, make chat WIDE */
 @media (min-width: 768px) {
   .chat-container {
-    width: 90vw;         /* 90% of the screen width */
-    max-width: 1400px;   /* Cap it so it doesn't get absurdly wide on ultra-wide monitors */
-    height: 92vh;        /* Tall height */
+    width: 90vw;
+    max-width: 1400px;
+    height: 92vh;
   }
   
-  /* Prevent message bubbles from stretching the entire screen width */
   .chat-message {
     max-width: 60% !important; 
   }
@@ -102,22 +124,29 @@ body {
 }
 
 .auth-container {
-  /* Keep Login Small and Centered */
   width: 100%;
-  max-width: 400px; /* <--- Fixed width for Login */
+  max-width: 400px;
   
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 40px;
   border-radius: 24px;
   box-shadow: var(--glass-shadow);
   border: var(--glass-border);
   text-align: center;
-  animation: slideUpFade 0.6s ease-out;
+  
+  /* 🚀 OPTIMIZATION: Simple Fade In */
+  animation: simpleFadeIn 0.5s ease-out;
+}
+
+@keyframes simpleFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* =========================================
-   3. INTERNAL COMPONENTS (Header, List, Input)
+   3. INTERNAL COMPONENTS
    ========================================= */
 
 /* --- Header --- */
@@ -144,7 +173,7 @@ body {
   cursor: pointer;
   transition: transform 0.2s;
 }
-.theme-toggle:hover { transform: rotate(15deg) scale(1.1); }
+.theme-toggle:hover { transform: scale(1.1); }
 
 /* --- Message List --- */
 .chat-messages {
@@ -157,7 +186,6 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Scrollbar Styling */
 .chat-messages::-webkit-scrollbar { width: 8px; }
 .chat-messages::-webkit-scrollbar-thumb {
   background-color: rgba(128, 128, 128, 0.3);
@@ -165,21 +193,26 @@ body {
 }
 .chat-messages::-webkit-scrollbar-track { background: transparent; }
 
-/* --- Messages --- */
-@keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+/* --- Messages Animation --- */
+@keyframes messagePop {
+  0% { opacity: 0; transform: translateY(10px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .chat-message {
-  max-width: 75%; /* Default for mobile */
+  max-width: 75%;
   padding: 12px 18px;
   border-radius: 18px;
   font-size: 1rem;
   line-height: 1.5;
   position: relative;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  animation: slideUpFade 0.4s ease forwards;
+  
+  /* 🚀 OPTIMIZATION: Removed box-shadow from bubbles for performance */
+  /* box-shadow: 0 2px 5px rgba(0,0,0,0.05); */
+  
+  /* 🚀 OPTIMIZATION: Smoother animation using only transform/opacity */
+  animation: messagePop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  will-change: transform, opacity;
 }
 
 .my-message {
@@ -194,6 +227,7 @@ body {
   background: var(--msg-other-bg);
   color: var(--msg-other-text);
   border-bottom-left-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.05); /* Subtle border instead of shadow */
 }
 
 .sender-name {
@@ -225,7 +259,7 @@ body {
 /* --- Input Area --- */
 .chat-input {
   padding: 20px;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255,255,255,0.05);
   border-top: 1px solid rgba(128,128,128,0.1);
   display: flex;
   gap: 15px;
@@ -239,7 +273,8 @@ body {
   background: rgba(255,255,255,0.8);
   outline: none;
   font-size: 1rem;
-  transition: all 0.3s;
+  /* 🚀 OPTIMIZATION: Specific transitions */
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
 body.dark .chat-input input {
@@ -267,13 +302,12 @@ body.dark .chat-input input:focus { background: #1e293b; }
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-  transition: all 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s; /* Specific transitions */
 }
 
 .chat-input button:hover:not(:disabled) {
-  transform: scale(1.1) rotate(-10deg);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 .chat-input button:disabled {
