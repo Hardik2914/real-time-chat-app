@@ -26,9 +26,11 @@ function App() {
   const savedUser = localStorage.getItem("chatUser");
   if (savedUser) {
     setUser(JSON.parse(savedUser));
+    setJoined(true); 
   }
   setAppLoading(false);
 }, []);
+
 
 
 
