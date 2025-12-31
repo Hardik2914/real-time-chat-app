@@ -11,6 +11,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(true);
+  const [joined, setJoined] = useState(false);
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
@@ -19,6 +20,14 @@ function App() {
   const username = user?.username;
 
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+  const savedUser = localStorage.getItem("chatUser");
+  if (savedUser) {
+    setUser(JSON.parse(savedUser));
+  }
+}, []);
+
 
   /* -------------------- AUTO SCROLL -------------------- */
   useEffect(() => {
@@ -61,7 +70,7 @@ function App() {
     return () => stompClient.deactivate();
   }, []);
 
-  /* -------------------- DARK MODE -------------------- */
+  /*  DARK MODE  */
   useEffect(() => {
     document.body.className = darkMode ? "dark" : "";
   }, [darkMode]);
@@ -125,21 +134,40 @@ function App() {
     if (e.key === "Enter") sendMessage();
   };
 
-// 🔐 AUTH GATE (ADD THIS JUST BEFORE return)
+
+
+//  AUTH GATE 
 if (!user) {
   return (
     <AuthForm
-      onAuthSuccess={(data) => setUser(data)}
-      isLogin={isLogin}
-      setIsLogin={setIsLogin}
-    />
+  onAuthSuccess={(data) => {
+    setUser(data);
+    localStorage.setItem("chatUser", JSON.stringify(data));
+  }}
+  isLogin={isLogin}
+  setIsLogin={setIsLogin}
+/>
+
   );
 }
+
+//logout function
+const handleLogout = () => {
+  localStorage.removeItem("chatUser");
+  setUser(null);
+  setJoined(false);
+};
+
 
   /* -------------------- UI -------------------- */
   return (
   <div className="chat-container">
-    <ChatHeader darkMode={darkMode} setDarkMode={setDarkMode} />
+    <ChatHeader
+  darkMode={darkMode}
+  setDarkMode={setDarkMode}
+  onLogout={handleLogout}
+/>
+
 
     <MessageList
       messages={messages}

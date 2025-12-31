@@ -1,16 +1,19 @@
 import React from "react";
 
-function ChatHeader({ darkMode, setDarkMode }) {
+function ChatHeader({ darkMode, setDarkMode, onLogout }) {
   return (
     <div className="chat-header">
-      <span>Real-Time Chat</span>
+      <h3>Real-Time Chat</h3>
 
-      <button
-        className="theme-toggle"
-        onClick={() => setDarkMode(!darkMode)}
-      >
-        {darkMode ? "☀️" : "🌙"}
-      </button>
+      <div>
+        <button onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? "Light" : "Dark"}
+        </button>
+
+        <button onClick={onLogout} className="logout-btn">
+          Logout
+        </button>
+      </div>
     </div>
   );
 }
