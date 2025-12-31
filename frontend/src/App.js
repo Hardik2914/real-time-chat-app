@@ -12,6 +12,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [isLogin, setIsLogin] = useState(true);
   const [joined, setJoined] = useState(false);
+  const [appLoading, setAppLoading] = useState(true);
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
@@ -26,7 +27,9 @@ function App() {
   if (savedUser) {
     setUser(JSON.parse(savedUser));
   }
+  setAppLoading(false);
 }, []);
+
 
 
   /* -------------------- AUTO SCROLL -------------------- */
@@ -90,26 +93,7 @@ function App() {
 }, [user, client, connected, username]);
 
 
-  /* -------------------- LEAVE MESSAGE ON CLOSE -------------------- */
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (client && username) {
-        client.publish({
-          destination: "/app/chat",
-          body: JSON.stringify({
-            type: "LEAVE",
-            sender: username,
-            text: `${username} left the chat`,
-            time: new Date().toISOString(),
-          }),
-        });
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () =>
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [client, username]);
+  
 
   /* -------------------- SEND MESSAGE -------------------- */
   const sendMessage = () => {
@@ -135,6 +119,10 @@ function App() {
   };
 
 
+if (appLoading) {
+  return <div className="loading-screen">Loading...</div>;
+}
+
 
 //  AUTH GATE 
 if (!user) {
@@ -153,10 +141,23 @@ if (!user) {
 
 //logout function
 const handleLogout = () => {
+  if (client && username) {
+    client.publish({
+      destination: "/app/chat",
+      body: JSON.stringify({
+        type: "LEAVE",
+        sender: username,
+        text: `${username} left the chat`,
+        time: new Date().toISOString(),
+      }),
+    });
+  }
+
   localStorage.removeItem("chatUser");
   setUser(null);
   setJoined(false);
 };
+
 
 
   /* -------------------- UI -------------------- */
