@@ -49,7 +49,7 @@ function App() {
       reconnectDelay: 5000,
 
       onConnect: () => {
-        console.log("✅ Connected to WebSocket");
+        console.log(" Connected to WebSocket");
         setConnected(true);
 
         stompClient.subscribe("/topic/messages", (msg) => {

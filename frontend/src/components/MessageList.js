@@ -9,7 +9,7 @@ function MessageList({ messages, username, messagesEndRef }) {
     });
   };
 
-  // Helper to generate a color from a name (optional, for fun avatars)
+  
   const getAvatarColor = (name) => {
     const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEEAD"];
     let hash = 0;
@@ -39,10 +39,10 @@ function MessageList({ messages, username, messagesEndRef }) {
             className={`chat-message ${isMine ? "my-message" : "other-message"}`}
             style={{ display: "flex", flexDirection: "column" }}
           >
-            {/* Header for other people: Avatar + Name */}
+            {}
             {!isMine && (
               <div style={{ display: "flex", alignItems: "center", marginBottom: "5px", gap: "8px" }}>
-                 {/* Simple CSS Avatar */}
+                 {}
                 <div style={{
                   width: "24px", height: "24px", 
                   borderRadius: "50%", 

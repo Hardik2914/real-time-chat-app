@@ -5,9 +5,15 @@ function ChatHeader({ darkMode, setDarkMode, onLogout }) {
     <div className="chat-header">
       <h3>Real-Time Chat</h3>
 
-      <div>
-        <button onClick={() => setDarkMode(!darkMode)}>
-          {darkMode ? "Light" : "Dark"}
+      {}
+      <div className="header-actions">
+        {}
+        <button 
+          onClick={() => setDarkMode(!darkMode)} 
+          className="theme-btn"
+          title="Toggle Theme"
+        >
+          {darkMode ? "☀️ Light" : "🌙 Dark"}
         </button>
 
         <button onClick={onLogout} className="logout-btn">

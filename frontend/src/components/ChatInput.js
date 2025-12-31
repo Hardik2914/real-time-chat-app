@@ -11,7 +11,7 @@ function ChatInput({ text, setText, sendMessage, handleKeyDown, connected }) {
       />
 
       <button onClick={sendMessage} disabled={!connected}>
-        {/* Simple Send Icon */}
+        { }
         ➤
       </button>
     </div>

@@ -1,11 +1,11 @@
 :root {
-  /* --- Colors & Variables --- */
+  
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   
   /* Light Mode Background */
   --bg-gradient-light: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
   
-  --glass-bg: rgba(255, 255, 255, 0.85); /* Slightly less transparent for performance */
+  --glass-bg: rgba(255, 255, 255, 0.85); 
   --glass-border: 1px solid rgba(255, 255, 255, 0.4);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
   
@@ -32,7 +32,6 @@ body.dark {
   --msg-other-text: #f1f5f9;
 }
 
-/* --- Global Setup & Performance Optimized Background --- */
 body {
   margin: 0;
   padding: 0;
@@ -46,8 +45,7 @@ body {
   overflow: hidden; 
 }
 
-/* 🚀 PERFORMANCE FIX: Use a pseudo-element for the animated background.
-   This creates a separate composite layer, reducing lag significantly. */
+
 body::before {
   content: "";
   position: fixed;
@@ -58,8 +56,8 @@ body::before {
   z-index: -1;
   background: var(--bg-gradient-light);
   background-size: 400% 400%;
-  animation: gradientBG 20s ease infinite; /* Slower animation is smoother */
-  transition: background 0.5s ease; /* Smooth dark mode switch */
+  animation: gradientBG 20s ease infinite; 
+  transition: background 0.5s ease; 
 }
 
 body.dark::before {
@@ -73,15 +71,13 @@ body.dark::before {
   100% { background-position: 0% 50%; }
 }
 
-/* =========================================
-   1. CHAT CONTAINER (Main App Window)
-   ========================================= */
+
 .chat-container {
   width: 95%;
   height: 90vh;
   
   background: var(--glass-bg);
-  /* 🚀 OPTIMIZATION: Reduced blur radius */
+  /* blur radius */
   backdrop-filter: blur(10px); 
   -webkit-backdrop-filter: blur(10px);
   
@@ -93,13 +89,13 @@ body.dark::before {
   flex-direction: column;
   overflow: hidden;
   
-  /* 🚀 OPTIMIZATION: Force GPU Layer */
+  /*Force GPU Layer */
   transform: translateZ(0); 
   will-change: width, height;
   transition: width 0.3s ease, height 0.3s ease;
 }
 
-/* 💻 LAPTOP/DESKTOP OVERRIDE 💻 */
+/* LAPTOP/DESKTOP OVERRIDE  */
 @media (min-width: 768px) {
   .chat-container {
     width: 90vw;
@@ -112,9 +108,7 @@ body.dark::before {
   }
 }
 
-/* =========================================
-   2. AUTH CONTAINER (Login/Register)
-   ========================================= */
+
 .auth-wrapper {
   display: flex;
   justify-content: center;
@@ -136,7 +130,7 @@ body.dark::before {
   border: var(--glass-border);
   text-align: center;
   
-  /* 🚀 OPTIMIZATION: Simple Fade In */
+  /* Simple Fade In */
   animation: simpleFadeIn 0.5s ease-out;
 }
 
@@ -145,9 +139,6 @@ body.dark::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* =========================================
-   3. INTERNAL COMPONENTS
-   ========================================= */
 
 /* --- Header --- */
 .chat-header {
@@ -207,10 +198,7 @@ body.dark::before {
   line-height: 1.5;
   position: relative;
   
-  /* 🚀 OPTIMIZATION: Removed box-shadow from bubbles for performance */
-  /* box-shadow: 0 2px 5px rgba(0,0,0,0.05); */
   
-  /* 🚀 OPTIMIZATION: Smoother animation using only transform/opacity */
   animation: messagePop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   will-change: transform, opacity;
 }
@@ -273,7 +261,6 @@ body.dark::before {
   background: rgba(255,255,255,0.8);
   outline: none;
   font-size: 1rem;
-  /* 🚀 OPTIMIZATION: Specific transitions */
   transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
 }
 
@@ -302,7 +289,7 @@ body.dark .chat-input input:focus { background: #1e293b; }
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s, box-shadow 0.2s; /* Specific transitions */
+  transition: transform 0.2s, box-shadow 0.2s; 
 }
 
 .chat-input button:hover:not(:disabled) {
@@ -344,3 +331,74 @@ body.dark .chat-input input:focus { background: #1e293b; }
 .auth-container button:hover { transform: translateY(-2px); }
 .auth-container .toggle { margin-top: 20px; color: #667eea; cursor: pointer; }
 .auth-container .error { color: #ff4757; font-size: 0.9rem; margin-top: 10px; }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px; 
+}
+
+/* --- Shared Button Base Styles --- */
+.theme-btn,
+.logout-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* --- Theme Toggle Button --- */
+.theme-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--text-main);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+body.dark .theme-btn {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.theme-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+body.dark .theme-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Logout Button --- */
+.logout-btn {
+  background: rgba(255, 71, 87, 0.1); 
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  color: #ff4757; 
+}
+
+.logout-btn:hover {
+  background: #ff4757;
+  color: white;
+  border-color: #ff4757;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); 
+}
+
+
+.chat-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
