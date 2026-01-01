@@ -49,7 +49,6 @@ function App() {
       reconnectDelay: 5000,
 
       onConnect: () => {
-        console.log(" Connected to WebSocket");
         setConnected(true);
 
         stompClient.subscribe("/topic/messages", (msg) => {
@@ -60,7 +59,6 @@ function App() {
       },
 
       onDisconnect: () => {
-        console.log(" Disconnected from WebSocket");
         setConnected(false);
       },
 
