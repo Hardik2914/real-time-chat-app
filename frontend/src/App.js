@@ -73,6 +73,36 @@ function App() {
     return () => stompClient.deactivate();
   }, []);
 
+  useEffect(() => {
+ const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:8080";
+
+const fetchMessages = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/messages`);
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch messages");
+    }
+
+    const data = await res.json();
+
+    const history = data.map((msg) => ({
+      type: "CHAT",
+      sender: msg.sender,
+      text: msg.content,
+      time: msg.timestamp,
+    }));
+
+    setMessages(history);
+  } catch (err) {
+    console.error("Failed to load message history", err);
+  }
+};
+
+  fetchMessages();
+}, []);
+
   /*  DARK MODE  */
   useEffect(() => {
     document.body.className = darkMode ? "dark" : "";
