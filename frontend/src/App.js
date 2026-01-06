@@ -55,12 +55,21 @@ function App() {
         stompClient.subscribe("/topic/messages", (msg) => {
   const message = JSON.parse(msg.body);
 
-  if (message.type === "TYPING" && message.sender !== username) {
+   if (message.type === "TYPING" && message.sender !== username) {
     setTypingUser(message.typing ? message.sender : null);
     return;
   }
 
-  setMessages((prev) => [...prev, message]);
+  
+  if (message.type === "JOIN" || message.type === "LEAVE") {
+    setMessages((prev) => [...prev, message]);
+    return;
+  }
+
+
+  if (message.type === "CHAT") {
+    setMessages((prev) => [...prev, message]);
+  }
 });
 
       },
