@@ -15,15 +15,13 @@ public class ChatController {
     @MessageMapping("/chat")
     @SendTo("/topic/messages")
     public ChatMessage sendMessage(ChatMessage message) {
-        if ("CHAT".equals(message.getType())) {
+        if ("CHAT".equalsIgnoreCase(message.getType())) {
             Message savedMessage = new Message(
                     message.getSender(),
                     message.getText()
             );
             messageRepository.save(savedMessage);
         }
-
         return message;
-
     }
     }

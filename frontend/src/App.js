@@ -13,6 +13,7 @@ function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [joined, setJoined] = useState(false);
   const [appLoading, setAppLoading] = useState(true);
+  const [typingUser, setTypingUser] = useState(null);
 
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
@@ -52,10 +53,16 @@ function App() {
         setConnected(true);
 
         stompClient.subscribe("/topic/messages", (msg) => {
-          const message = JSON.parse(msg.body);
-          setMessages((prev) => [...prev, message]);
-          
-        });
+  const message = JSON.parse(msg.body);
+
+  if (message.type === "TYPING" && message.sender !== username) {
+    setTypingUser(message.typing ? message.sender : null);
+    return;
+  }
+
+  setMessages((prev) => [...prev, message]);
+});
+
       },
 
       onDisconnect: () => {
@@ -202,17 +209,21 @@ const handleLogout = () => {
 
     <MessageList
       messages={messages}
-      username={username}
-      messagesEndRef={messagesEndRef}
+        typingUser={typingUser}
+        messagesEndRef={messagesEndRef}
+        username={username}
     />
 
     <ChatInput
-      text={text}
-      setText={setText}
-      sendMessage={sendMessage}
-      handleKeyDown={handleKeyDown}
-      connected={connected}
-    />
+  text={text}
+  setText={setText}
+  sendMessage={sendMessage}
+  handleKeyDown={handleKeyDown}
+  connected={connected}
+  client={client}
+  username={username}
+/>
+
   </div>
 );
 

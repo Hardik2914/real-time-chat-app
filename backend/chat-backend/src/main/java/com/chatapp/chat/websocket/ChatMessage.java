@@ -6,6 +6,7 @@ public class ChatMessage {
     private String sender;
     private String text;
     private String time;
+    private boolean typing;
 
     public String getType() {
         return type;
@@ -37,5 +38,12 @@ public class ChatMessage {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public boolean isTyping() {
+        return typing;
+    }
+    public void setTyping(boolean typing) {
+        this.typing = typing;
     }
 }
