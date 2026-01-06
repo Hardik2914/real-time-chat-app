@@ -1,6 +1,17 @@
-import React from "react";
+import React, { memo } from "react";
 
 function MessageList({ messages, typingUser, messagesEndRef, username }) {
+  
+  
+  const formatTime = (isoString) => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    return date.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
+
   return (
     <div className="chat-messages">
       {messages.map((m, i) => {
@@ -24,29 +35,34 @@ function MessageList({ messages, typingUser, messagesEndRef, username }) {
             }`}
           >
             {!isMine && <div className="sender-name">{m.sender}</div>}
+            
             <div className="message-text">{m.text}</div>
+
+            {}
+            <div className="message-time">
+              {formatTime(m.time)}
+            </div>
           </div>
         );
       })}
 
       {/* TYPING INDICATOR */}
       {typingUser && typingUser !== username && (
-  <div className="typing-container">
-    <div className="typing-bubble">
-      <span className="typing-name">{typingUser}</span>
-      <div className="typing-dots">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-  </div>
-)}
-
+        <div className="typing-container">
+          <div className="typing-bubble">
+            <span className="typing-name">{typingUser}</span>
+            <div className="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div ref={messagesEndRef} />
     </div>
   );
 }
 
-export default MessageList;
+export default memo(MessageList);
