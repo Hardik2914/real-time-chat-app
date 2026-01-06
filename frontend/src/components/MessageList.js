@@ -4,7 +4,7 @@ function MessageList({ messages, typingUser, messagesEndRef, username }) {
   return (
     <div className="chat-messages">
       {messages.map((m, i) => {
-        // 🔹 SYSTEM MESSAGES (JOIN / LEAVE)
+        // SYSTEM MESSAGES (JOIN / LEAVE)
         if (m.type === "JOIN" || m.type === "LEAVE") {
           return (
             <div key={i} className="system-message">
@@ -13,7 +13,7 @@ function MessageList({ messages, typingUser, messagesEndRef, username }) {
           );
         }
 
-        // 🔹 NORMAL CHAT MESSAGE
+        // NORMAL CHAT MESSAGE
         const isMine = m.sender === username;
 
         return (
@@ -29,19 +29,20 @@ function MessageList({ messages, typingUser, messagesEndRef, username }) {
         );
       })}
 
-      {/* 🔹 TYPING INDICATOR */}
-      {typingUser && (
-        <div className="typing-container">
-          <div className="typing-bubble">
-            <span className="typing-name">{typingUser}</span>
-            <div className="typing-dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* TYPING INDICATOR */}
+      {typingUser && typingUser !== username && (
+  <div className="typing-container">
+    <div className="typing-bubble">
+      <span className="typing-name">{typingUser}</span>
+      <div className="typing-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+)}
+
 
       <div ref={messagesEndRef} />
     </div>

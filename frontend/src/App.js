@@ -35,12 +35,13 @@ function App() {
 
 
 
-  /* -------------------- AUTO SCROLL -------------------- */
+  /* AUTO SCROLL */
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [messages, typingUser]);
 
-  /* -------------------- WEBSOCKET SETUP -------------------- */
+
+  /*  WEBSOCKET SETUP */
   useEffect(() => {
     const socketUrl =
       process.env.REACT_APP_WS_URL || "ws://localhost:8080/ws";
@@ -141,7 +142,7 @@ const fetchMessages = async () => {
 
   
 
-  /* -------------------- SEND MESSAGE -------------------- */
+  /* SEND MESSAGE */
   const sendMessage = () => {
   if (!text.trim() || !client || !connected) return;
 
@@ -206,7 +207,7 @@ const handleLogout = () => {
 
 
 
-  /* -------------------- UI -------------------- */
+  /*  UI */
   return (
   <div className="chat-container">
     <ChatHeader
