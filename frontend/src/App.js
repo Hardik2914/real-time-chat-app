@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 import "./App.css";
 import AuthForm from "./components/auth/AuthForm";
-
+import joinSound from "./assets/sounds/join.mp3";
 import ChatHeader from "./components/ChatHeader";
 import MessageList from "./components/MessageList";
 import ChatInput from "./components/ChatInput";
@@ -32,6 +32,11 @@ function App() {
   setAppLoading(false);
 }, []);
 
+const joinAudio = useRef(null);
+
+useEffect(() => {
+  joinAudio.current = new Audio(joinSound);
+}, []);
 
 
 
@@ -62,10 +67,21 @@ function App() {
   }
 
   
-  if (message.type === "JOIN" || message.type === "LEAVE") {
-    setMessages((prev) => [...prev, message]);
-    return;
+  if (message.type === "JOIN") {
+  
+  if (message.sender !== username && joinAudio.current) {
+    joinAudio.current.play().catch(() => {});
   }
+
+  setMessages((prev) => [...prev, message]);
+  return;
+}
+
+if (message.type === "LEAVE") {
+  setMessages((prev) => [...prev, message]);
+  return;
+}
+
 
 
   if (message.type === "CHAT") {
